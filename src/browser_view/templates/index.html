@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Crain</title>
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="./css/indexDesign.css">
+	<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+	<link rel="stylesheet" href="./bstrap/css/bootstrap.min.css">
+	<script src="./bstrap/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<!--header-->
+<div class="head_ container-fluid text-center">
+	<h2 style="color: white">CRAIN</h2>
+	<p style="color: white">[ Cyber Report Automation INtegration ]</p>
+</div>
+
+<br><br>
+
+<!--body-->
+<div class="container-fluid">
+	<div class="row">
+		<div class="project col-sm-offset-1 col-sm-5" style="border: 1px solid #337ab7; border-radius: 5px;">
+			<div class="row">
+				<div class="col-sm-12 container-fluid" style="background-color: #337ab7;border-radius: 5px;">
+					<h2 style="color: white;" class="text-center" >Open project</h2>
+				</div>
+			</div>
+			<div class="row" style="background-color: #ffffff"><br>
+				<div class="col-sm-12 table-wrapper-scroll-y my-custom-scrollbar">
+					<table class="table table-condensed table-striped mb-0">
+						<thead>
+							<tr><th>Project-Name</th><th>Client</th><th>Category</th><th>Application</th><th>Month-Year</th><th></th></tr>
+						</thead>
+						<tbody id="projectList"></tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<!--New Section-->
+		<div class="project col-sm-offset-1 col-sm-3" style="border: 1px solid #337ab7; border-radius: 5px;">
+			<div class="row">
+				<div class="col-sm-12 container-fluid" style="background-color: #337ab7;border-radius: 5px;">
+					<h2 style="color: white;" class="text-center" >Create a new project</h2>
+				</div>
+			</div>
+			<div class="row" style="background-color: #ffffff"><br>
+				<div class="col-sm-12">
+					
+						<div class="form-group row">
+							<label class="control-label col-sm-4">Client Name: </label>
+							<div class="col-sm-8">
+								<input type="text" id="client" name="client" onkeyup="blacklist(this.value, this.id)">
+							</div>
+						</div>
+						<div class="form-group row">
+							<label class="control-label col-sm-4">Application Name: </label>
+							<div class="col-sm-8">
+								<input type="text" id="app" name="app" onkeyup="blacklist(this.value, this.id)">
+							</div>
+						</div>
+
+						<div class="form-group row">
+							<label class="control-label col-sm-4">Category: </label>
+							<div class="col-sm-8">
+								<select id="category" name="category" style="width:180px">
+									<option value="appsec">Web Application Security Assessment</option>
+									<option value="mobsec">Mobile Application Security Assessment</option>
+									<option value="sourcecode">Secure Source Code Review</option>
+		<!-- 						<option value="network">Network Architecture Review</option>
+									<option value="va">Vulnerability Assessment</option>-->
+								</select>
+							</div>
+						</div>
+						<div class="form-group row">
+							<label class="control-label col-sm-4">Month: </label>
+							<div class="col-sm-8">
+								<select id="month" name="month">
+									<option value="January">January</option>
+									<option value="February">February</option>
+									<option value="March">March</option>
+									<option value="April">April</option>
+									<option value="May">May</option>
+									<option value="June">June</option>
+									<option value="July">July</option>
+									<option value="August">August</option>
+									<option value="September">September</option>
+									<option value="October">October</option>
+									<option value="November">November</option>
+									<option value="December">December</option>
+								</select>
+							</div>
+						</div>
+						<div class="form-group row">
+							<label class="control-label col-sm-4">Year: </label>
+							<div class="col-sm-8">
+								<select id="year" name="year">
+									<option value="2019">2019</option>
+									<option value="2020">2020</option>
+									<option value="2021">2021</option>
+									<option value="2022">2022</option>
+									<option value="2023">2023</option>
+									<option value="2024">2024</option>
+									<option value="2025">2025</option>
+								</select>
+							</div>
+						</div>
+						
+						<div class="form-group row">
+							<label class="control-label col-sm-4">Save Project As: </label>
+							<div class="col-sm-8">
+								<input type="text" id="projectName" name="projectName" placeholder="must be unique" onkeyup="blacklist(this.value, this.id)">
+							</div>
+						</div>
+						<div id="error" style="color: red;"></div>
+						<button class="btn btn-block btn-primary" onclick="createProject()">Create >></button>
+						<br>
+					
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-2"></div>
+	</div>
+</div>
+
+<!--footer-->
+<div class="foot_ container-fluid text-center">
+	<p><a style="padding-top: 5px;color:white;" href="about.html">About</a></p>
+</div>
+
+
+<script>
+let allProjects = []
+$(document).ready(function(){
+	$.ajax({
+        type: 'GET',
+        url: 'http://localhost:3000/readProjects',
+        dataType: "json",
+        success: function(data) {
+			allProjects = data.projects;
+			console.log("These are all Projects", allProjects)
+			for(var i=0; i<allProjects.length; i++)
+			{
+				var node="<tr id=\""+allProjects[i]["filename"]+"\" onmouseover=\"this.style.backgroundColor='#586de8';this.style.color='white'\" onmouseout=\"this.style.backgroundColor= 'white'; this.style.color= 'black'\">\
+					<td></td><td></td><td></td><td></td><td></td><td></td>\
+					</tr>"
+				$("#projectList").append(node)
+				document.getElementById(allProjects[i]["filename"]).children[0].innerText = allProjects[i].filename
+				document.getElementById(allProjects[i]["filename"]).children[1].innerText = allProjects[i].client
+				document.getElementById(allProjects[i]["filename"]).children[2].innerText = allProjects[i].category
+				document.getElementById(allProjects[i]["filename"]).children[3].innerText = allProjects[i].app
+				document.getElementById(allProjects[i]["filename"]).children[4].innerText = allProjects[i].month + ' '+ allProjects[i].year
+				//TO DO: add onclick event Listener on the node 
+				document.getElementById(allProjects[i]["filename"]).addEventListener("click", function(){
+					openProject(this.id)
+				})
+
+			}
+        }
+    });
+
+	// Automatically setting month and year
+	document.getElementById("month").selectedIndex = new Date().getMonth();
+	year_obj = document.getElementById("year");
+	setSelectedValue(year_obj, new Date().getFullYear());
+
+	function setSelectedValue(year_obj, valueToSet) {
+		for (var i = 0; i < year_obj.options.length; i++) {
+    		if (year_obj.options[i].text== valueToSet) {
+        		year_obj.options[i].selected = true;
+        		return;
+    		}
+    	}
+	}
+});
+
+//createproject AJAX call
+function createProject(){
+	let client = document.getElementById("client").value
+	let app = document.getElementById("app").value
+	let category = document.getElementById("category").value
+	let month = document.getElementById("month").value
+	let year = document.getElementById("year").value
+	let projectName = document.getElementById("projectName").value
+
+	if(client == "" || app == "" || category == "" || month == "" || year == "" || projectName == ""){
+		document.getElementById("error").innerHTML = "All Fields are required";
+		return
+	}
+	let obj = {
+			client : client,
+			app : app,
+			category : category,
+			month : month,
+			year : year,
+			projectName : projectName
+		}
+	$.ajax({
+    	type: 'POST',
+		url: 'http://localhost:3000/createProject',
+		contentType: "application/json; charset=utf-8",
+		data: JSON.stringify(obj),
+    	success: function(data) {
+			if(data.error)
+			{
+				document.getElementById("error").innerHTML = data.error;
+			}
+			else{
+				openProject(data.data.projectName)
+			}
+		}
+	})
+}
+function openProject(projectName){
+	location.replace(window.location.origin + '/work?q='+projectName)
+}
+
+//character blacklisting
+function blacklist(val, id) {
+	val = val.replace(/['"_.=<>]/g, '')
+	document.getElementById(id).value = val
+}
+
+</script>
+</body>
+</html>
