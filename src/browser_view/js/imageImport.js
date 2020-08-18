@@ -34,9 +34,20 @@ function importImages(imagePath /*,id*/){
 }
 
 function callImageImport(id){
-  console.log("calling image import", event.target.files[0]).fullPath
-//  let path = event.target.files[0].path.split("\\")
-//  importImages(path, id)
+  console.log("Inside callImageImport")
+  function readMultipleImages(file){
+  var reader = new FileReader()
+  reader.onload = function(){
+    console.log(reader.result)
+  }
+  reader.readAsDataURL(file)
+}
+ for (var i=0; i<event.target.files.length; i++){
+   readMultipleImages(event.target.files[i])
+  }
+  //  console.log("calling image import", event.target.files[0]).fullPath 
+  //  let path = event.target.files[0].path.split("\\")
+  //  importImages(path, id)
 }
 
 function setValueNull(id){
