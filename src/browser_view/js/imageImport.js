@@ -38,7 +38,15 @@ function callImageImport(id){
   function readMultipleImages(file){
   var reader = new FileReader()
   reader.onload = function(){
-    console.log(reader.result)
+    let split_values = file.name.split('.')[0].split('_')
+    if(isNaN(split_values[0]) || isNaN(split_values[1])){
+    }
+    file_obj["obs"][id]["images"][split_values[0]]= file_obj["obs"][id]["images"][split_values[0]] || {}
+    file_obj["obs"][id]["images"][split_values[0]][split_values[1]] = reader.result
+  let screenshotsFound = imageCount(file_obj["obs"][id]["images"])
+  if(screenshotsFound>0){ file_obj["obs"][id]["annexure"]= true;}
+  document.getElementById('screenshot'+id).innerHTML=screenshotsFound
+  console.log(file_obj)
   }
   reader.readAsDataURL(file)
 }
