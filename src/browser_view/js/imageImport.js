@@ -35,6 +35,7 @@ function importImages(imagePath,id){
   console.log(file_obj)
 }
 */
+
 function callImageImport(id){
   console.log("Inside callImageImport")
   function readMultipleImages(file){
@@ -63,11 +64,11 @@ function callImageImport(id){
 function setValueNull(id){
   document.getElementById("filepicker"+id).value = null
 }
-/*
+
 function selectImagePath(id){
   document.getElementById("filepicker"+id).click()
 }
-*/
+
 /*INDIVIDUAL IMAGE DELETE*/
 function deleteImages(id){
   file_obj["obs"][id]["images"]={}

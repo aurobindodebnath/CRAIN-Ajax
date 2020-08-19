@@ -1,6 +1,7 @@
 const express = require('express')
 const fs = require('fs')
 const path = require('path')
+var bodyParser = require('body-parser')
 
 // Constants
 const PORT = 3000
@@ -10,7 +11,8 @@ const app = express()
 app.use(express.static(path.join(__dirname,'browser_view','templates')))
 app.use('/work', express.static(path.join(__dirname,'browser_view','templates','workarea.html')))
 app.use(express.static(path.join(__dirname,'browser_view')))
-app.use(express.json())
+app.use(bodyParser.json({limit: '50mb'}))
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true, parameterLimit:50000}))
 
 // Local API Endpoints
 app.get('/readProjects', (req, res)=>{
