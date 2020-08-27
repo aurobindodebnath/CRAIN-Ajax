@@ -233,6 +233,27 @@
 			}
 		})
 	}
+
+
+	function createSheet(){
+		let projectName = file_obj["projectName"]
+		$.ajax({
+			type: 'POST',
+			url: 'http://localhost:3000/generateExcel',
+			contentType: "application/json; charset=utf-8",
+			data: JSON.stringify(file_obj),
+			success: function(data) {
+				if(data.error)
+				{
+					alert(data.error);
+				}
+				else{
+					alert(data.success);
+				}
+			}
+		})
+	}
+
 	
 	function basicSort(){
 	  	let highObs=[]

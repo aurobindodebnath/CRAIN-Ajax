@@ -2,6 +2,7 @@ const express = require('express')
 const fs = require('fs')
 const path = require('path')
 var bodyParser = require('body-parser')
+const ExcelJS = require('exceljs');
 
 // Constants
 const PORT = 3000
@@ -142,7 +143,65 @@ app.post('/importImages', (req, res)=>{
 
 
 app.post('/generateExcel', (req, res)=>{
-    res.send("4")
+    let file_obj = req.body
+    var workbook = new ExcelJS.Workbook();
+    workbook.xlsx.readFile(path.join('.','browser_view','templates','base.xlsx')).then(function(){
+        let startrow = 10
+        let rowitr=3
+        // let colitr=dimensions["ini_col"]
+        //setting the author
+        workbook.creator = "KPMG"
+
+        //update the cover page
+		var worksheet_cover = workbook.getWorksheet('Cover');
+        let cell1 = worksheet_cover.getCell('C8').value
+        cell1 = cell1.replace("var11111",file_obj["client"])
+        cell1 = cell1.replace("var22222",file_obj["category"])
+        worksheet_cover.getCell('C8').value = cell1
+		cell1 = worksheet_cover.getCell('C12').value
+        cell1 = cell1.replace("var33333",file_obj["month"])
+        cell1 = cell1.replace("var44444",file_obj["year"])
+        worksheet_cover.getCell('C12').value = cell1
+		cell1 = worksheet_cover.getCell('C15').value
+	    cell1 = cell1.replace("var44444",file_obj["year"])
+        worksheet_cover.getCell('C15').value = cell1	
+
+        //update disclaimer
+		var worksheet_disclaimer = workbook.getWorksheet('Disclaimer and Assumptions');
+		cell1 = worksheet_disclaimer.getCell('B3').value.split('var11111').join(file_obj["client"])
+        worksheet_disclaimer.getCell('B3').value = cell1	
+		cell1 = worksheet_disclaimer.getCell('B20').value.split('var11111').join(file_obj["client"])
+        worksheet_disclaimer.getCell('B20').value = cell1	
+		cell1 = worksheet_disclaimer.getCell('B22').value.split('var11111').join(file_obj["client"])
+        worksheet_disclaimer.getCell('B22').value = cell1	
+		cell1 = worksheet_disclaimer.getCell('B23').value.split('var11111').join(file_obj["client"])
+        worksheet_disclaimer.getCell('B23').value = cell1	
+		cell1 = worksheet_disclaimer.getCell('B24').value.split('var11111').join(file_obj["client"])
+        worksheet_disclaimer.getCell('B24').value = cell1	
+
+        //update observations & Annexures
+        var worksheet = workbook.getWorksheet('Observations');
+        var worksheet2 = workbook.getWorksheet('Annexures');
+		cell1 = worksheet.getCell('A1').value
+	    cell1 = cell1.replace("var11111",file_obj["app"])
+        cell1 = cell1.replace("var22222",cat[file_obj["category"]])
+        let cell2 = worksheet.getCell('J9').value
+        cell2 = cell2.replace("var11111", file_obj["client"])
+        worksheet.getCell('A1').value = cell1
+        worksheet.getCell('J9').value = cell2
+
+
+
+
+    })
+
+
+    workbook.xlsx.writeFile(path.join('..','reports','abc.xlsx')).then(function() {
+        res.json({error: "REPORT CREATED. PLEASE FIND IN THE DIRECTORY:\n KREPORT\\projects"})
+    })
+    .catch(err=> res.json({error: "FAILED. PREVIOUS REPORT MIGHT BE OPEN. CLOSE IT AND TRY AGAIN!"}))
+    
+    res.json({success: "Report Saved!"})
 })
 
 
