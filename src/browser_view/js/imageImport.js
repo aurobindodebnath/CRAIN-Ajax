@@ -37,7 +37,6 @@ function importImages(imagePath,id){
 */
 
 function callImageImport(id){
-  console.log("Inside callImageImport")
   function readMultipleImages(file){
   var reader = new FileReader()
   reader.onload = function(){
