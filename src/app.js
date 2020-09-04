@@ -4,7 +4,8 @@ const path = require('path')
 var bodyParser = require('body-parser')
 var varExcel = require('./variablesExcel')
 const ExcelJS = require('exceljs');
-
+const variablesExcel = require('./variablesExcel')
+var sizeOf = require('image-size')
 
 // Constants
 const PORT = 3000
@@ -54,6 +55,7 @@ app.post('/createProject', (req, res)=>{
         else{
             delete file_obj.projectName
             file_obj.img_limit = 2;
+            file_obj.annexure_name = 'Annexure';
             file_obj.stock = [];
             file_obj.obs = {};
             //TEST CASE : Check if filenames with special characters are permitted
@@ -147,6 +149,18 @@ app.post('/importImages', (req, res)=>{
 app.post('/generateExcel', (req, res)=>{
     let file_obj = req.body
     var workbook = new ExcelJS.Workbook();
+    function convert(number){
+        number = number - 1
+        var alphabets = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+        var result = ""
+        do{
+            var r = Math.floor(number%26);
+            var q = Math.floor(number/26);
+            result = alphabets[r] + result
+            number = q-1
+        } while(q != 0)
+        return result;
+    }
     workbook.xlsx.readFile(path.join('.','browser_view','templates','base.xlsx'))
     .then(function(){
         let startrow = 10
@@ -184,8 +198,10 @@ app.post('/generateExcel', (req, res)=>{
         worksheet_disclaimer.getCell('B24').value = cell1	
 
         //update observations & Annexures
+        var annexure_name =file_obj["annexure_name"]
         var worksheet = workbook.getWorksheet('Observations');
         var worksheet2 = workbook.getWorksheet('Annexures');
+        worksheet2.name=annexure_name
 		cell1 = worksheet.getCell('A1').value
 	    cell1 = cell1.replace("var11111",file_obj["app"])
         cell1 = cell1.replace("var22222",varExcel.cat[file_obj["category"]])
@@ -205,7 +221,7 @@ app.post('/generateExcel', (req, res)=>{
           let ann = ""
           if(file_obj["obs"][file_obj["stock"][i]]["annexure"])
           {
-            ann = "Annexure"
+            ann = annexure_name
           }else{
             ann = "N/A"
           }
@@ -266,15 +282,138 @@ app.post('/generateExcel', (req, res)=>{
             worksheet.getCell('E'+startrow).fill = {type: 'pattern',pattern:'solid',fgColor:{argb:'FF92D050'},bgColor:{argb:'FF92D050'}};
           }
           startrow++;
-          
+          if(file_obj["obs"][file_obj["stock"][i]]["annexure"]){
+            let youcantseeme = startrow-1
+            worksheet2.mergeCells('B'+rowitr+':J'+rowitr);
+            worksheet2.getCell('B'+ rowitr).value = file_obj["obs"][file_obj["stock"][i]]["observation"]
+            worksheet2.getCell('B'+ rowitr).alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
+            worksheet2.getCell('B'+ rowitr).font = {name: 'Univers for KPMG',size: 10, color: { argb: 'FFFFFFFF' }};			
+            worksheet2.getCell('B'+ rowitr).fill = {type: 'pattern',pattern:'solid',fgColor:{argb:'FF00338D'},bgColor:{argb:'FF#00338D'}};
+			worksheet.getCell('H'+youcantseeme).value = { text: annexure_name, hyperlink: '#\''+annexure_name+'\'!B'+rowitr };
+            rowitr+=3;
+            let cases0 = Object.keys(file_obj["obs"][file_obj["stock"][i]]["images"])
+            let cases =[]
+            let thresholds = Object.keys(variablesExcel.dimensions2["thresholds"])
+            console.log("Here are the thresholds", thresholds);
+            for(var j in cases0){
+				cases.push(Number(cases0[j]))
+            }
+            cases.sort((a,b)=> a - b)
+            if(cases.length>1){rowitr--;}
+            for(var j in cases){
+                if(cases.length>1)
+                {
+                worksheet2.getCell('B'+rowitr).value = "Case " + cases[j];
+				worksheet2.getCell('B'+ rowitr).font = {name: 'Univers for KPMG',size: 10, color: { argb: 'FF000000' }};			
+                rowitr+=3;
+                }
+                let image_keys=[]
+                let image_keys0 = Object.keys(file_obj["obs"][file_obj["stock"][i]]["images"][cases[j]])
+                for(var k in image_keys0){
+                    image_keys.push(Number(image_keys0[k]))
+                }
+                image_keys.sort((a,b)=> a - b)
+                var row_max=0;
+                if(file_obj["img_limit"] == "infinite"){
+                    for(var k in image_keys){
+                        var img_base64 = file_obj["obs"][file_obj["stock"][i]]["images"][cases[j]][image_keys[k]]
+                        // test code
+                        var abc = Buffer.from(img_base64.substr(22), 'base64')
+                        var lol = sizeOf(abc)
+                        var selected_threshold
+                        var current_min = 100
+                        console.log("ratio is: ",lol.width/lol.height)
+                        for(var z in thresholds){
+                            if(current_min>Math.abs(Number(thresholds[z])-(lol.width/lol.height))){
+                                current_min = Math.abs(Number(thresholds[z])-(lol.width/lol.height))
+                                selected_threshold = thresholds[z];
+                                row_max = Math.max(row_max, variablesExcel.dimensions2["thresholds"][thresholds[z]]["inc_row"])
+                            }
+                        }
+                        console.log("selected threshold is: ", selected_threshold)
+                        var dimen = convert(colitr)+String(rowitr)+':'+convert(colitr+variablesExcel.dimensions2["thresholds"][selected_threshold]["inc_col"])+String(rowitr+variablesExcel.dimensions2["thresholds"][selected_threshold]["inc_row"])
+                        worksheet2.addImage(workbook.addImage({
+                            base64: img_base64,
+                            extension: 'png',
+                          }), dimen);
+                       colitr= colitr+ variablesExcel.dimensions2["thresholds"][selected_threshold]["inc_col"]+2
+                    }
+                    colitr=variablesExcel.dimensions2["ini_col"]
+                    rowitr= rowitr+row_max+3
+                }
+                else{
+                    if(image_keys.length % Number(file_obj["img_limit"]) === 0)
+                    {
+                        var l = Math.floor(image_keys.length/Number(file_obj["img_limit"]))
+                    }
+                    else{
+                        var l = Math.floor(image_keys.length/Number(file_obj["img_limit"])) +1
+                    }
+                    var m = Number(file_obj["img_limit"])
+                    var n = 0
+                    while(l--)
+                    {
+                       row_max = 0;
+                      while(m--)
+                      {
+                          console.log("ini_row_max", row_max)
+                        if(n==image_keys.length-1)
+                        {
+                          var img_base64 = file_obj["obs"][file_obj["stock"][i]]["images"][cases[j]][image_keys[n]]
+                          var abc = Buffer.from(img_base64.substr(22), 'base64')
+                          var lol = sizeOf(abc)
+                            var current_min = 100
+                            var selected_threshold;
+                            for(var z in thresholds){
+                                if(current_min>Math.abs(Number(thresholds[z])-(lol.width/lol.height))){
+                                      current_min = Math.abs(Number(thresholds[z])-(lol.width/lol.height))
+                                    selected_threshold = thresholds[z];
+                                }							
+                            }
+                            row_max = Math.max(row_max, variablesExcel.dimensions2["thresholds"][selected_threshold]["inc_row"])
+                            console.log(row_max)						
+                          var dimen = convert(colitr)+String(rowitr)+':'+convert(colitr+variablesExcel.dimensions2["thresholds"][selected_threshold]["inc_col"])+String(rowitr+variablesExcel.dimensions2["thresholds"][selected_threshold]["inc_row"])
+                            worksheet2.addImage(workbook.addImage({
+                                base64: img_base64,
+                               extension: 'png',
+                             }), dimen);
+                          break;
+                        }
+                        var img_base64 = file_obj["obs"][file_obj["stock"][i]]["images"][cases[j]][image_keys[n]]
+                        var abc = Buffer.from(img_base64.substr(22), 'base64')
+                        var lol = sizeOf(abc)
+                            var selected_threshold;
+                            var current_min = 100;
+                            for(var z in thresholds){
+                                if(current_min>Math.abs(Number(thresholds[z])-(lol.width/lol.height))){
+                                    current_min = Math.abs(Number(thresholds[z])-(lol.width/lol.height))
+                                    selected_threshold = thresholds[z];							
+                                }
+                            }
+                            row_max = Math.max(row_max, variablesExcel.dimensions2["thresholds"][selected_threshold]["inc_row"])
+                            console.log(row_max)
+                        var dimen = convert(colitr)+String(rowitr)+':'+convert(colitr+variablesExcel.dimensions2["thresholds"][selected_threshold]["inc_col"])+String(rowitr+variablesExcel.dimensions2["thresholds"][selected_threshold]["inc_row"])
+                        worksheet2.addImage(workbook.addImage({
+                            base64: img_base64,
+                               extension: 'png',
+                          }), dimen);
+                        colitr=colitr+variablesExcel.dimensions2["thresholds"][selected_threshold]["inc_col"]+2
+                        n++;
+                      }
+                      console.log("this is row_max: ", row_max)
+                      m = Number(file_obj["img_limit"])
+                      rowitr=rowitr+row_max+3
+                      colitr=variablesExcel.dimensions2["ini_col"]
+                    }
+                  }
+            }
+          }
+
 
 
 
         } 
-
-
-
-        
+      
         // code to update the table
         worksheet.getCell('C4').value = {formula: 'COUNTIF(E9:E10000, "HIGH")'}
         worksheet.getCell('C5').value = {formula: 'COUNTIF(E9:E10000, "MEDIUM")'}
@@ -290,8 +429,6 @@ app.post('/generateExcel', (req, res)=>{
         worksheet.getCell('E5').value = {formula: 'COUNTIFS(E9:E10000,"MEDIUM",I9:I10000,"OPEN")'}
         worksheet.getCell('E6').value = {formula: 'COUNTIFS(E9:E10000,"LOW",I9:I10000,"OPEN")'}
         worksheet.getCell('E7').value = {formula: 'E4+E5+E6'}
-
-
 
         console.log("Hello")
 

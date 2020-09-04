@@ -64,7 +64,7 @@
 					<div class="row">
 						<div class="col-sm-10">
 						<ul class="nav nav-tabs">
-							<li class="active"><a data-toggle="tab" href="#workarea">Work Area</a></li>
+							<li class="active"><a data-toggle="tab" href="#workarea" onclick="setTimeout(recreateObsDOM, 500)">Work Area</a></li>
 							<li><a data-toggle="tab" href="#settings">Settings</a></li>
 							<li><a data-toggle="tab" href="#writeups">Write Ups</a></li>
 						</ul>  
@@ -127,6 +127,9 @@
 						  </ul>
 						  </div>
 						  <br>
+						  <div>
+							 Annexure Name : <input type="text" id="annexure_name" onkeyup=updateAnnexureName(this.value,this.id)>
+						  </div>
 					</div>
 					<div id="writeups" class="container-fluid text-left tab-pane fade">
 						<table class="table table-condensed table-striped table-bordered" id="database" style="width:100%; background-color: #eee;">
@@ -153,6 +156,12 @@
 	<script src="./js/imageImport.js"></script>
 
 	<script>
+		function updateAnnexureName(annexure_name,id){
+			annexure_name = annexure_name.replace(/['"_.=<>{}]/g, '')
+			document.getElementById(id).value = annexure_name		
+			file_obj["annexure_name"]=annexure_name
+		
+		}
 		$(document).ready(function(){
 			// To fetch data from project File
 			const urlParams = new URLSearchParams(window.location.search);
@@ -199,6 +208,7 @@
 						$('#database').append(node)
 
 						document.getElementById("a"+file_obj["img_limit"]).checked = true;
+						document.getElementById("annexure_name").value=file_obj["annexure_name"]
   						updateDOM()
   						$("#sortable").sortable({
     						update: function(event, ui){
@@ -297,6 +307,7 @@
     		$('#sortable').append("<li class=\"ui-state-highlight\" id="+file_obj["stock"][i]+">"+file_obj["obs"][file_obj["stock"][i]]["observation"]+" <span class=\"label label-"+tag+"\">"+file_obj["obs"][file_obj["stock"][i]]["criticality"]+"</span></li>");
   		}
 	}
+	
 
 	//function to set checked radio button in file_obj
 	var radios = document.forms["ImageSelect"].elements["limit"];

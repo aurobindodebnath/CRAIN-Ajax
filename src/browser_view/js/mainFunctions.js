@@ -26,6 +26,7 @@ function updateBanner(){
   document.getElementById('lowBanner').innerHTML = mybanner["Low"]
 }
 
+
 /*DOM: function to create/delete Observations*/
 function createObsDOM(id){
   console.log(id)
@@ -140,7 +141,7 @@ $('#cardSearch').keyup(function(){
 			if(searchField === '')  {
         initializeCards()
 				return;
-			}
+      }
 
       var regex = new RegExp(searchField, "i");
       var output = '<div class="row">';

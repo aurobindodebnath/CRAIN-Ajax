@@ -220,7 +220,7 @@ function openProject(projectName){
 
 //character blacklisting
 function blacklist(val, id) {
-	val = val.replace(/['"_.=<>]/g, '')
+	val = val.replace(/['"_.=<>{}]/g, '')
 	document.getElementById(id).value = val
 }
 
