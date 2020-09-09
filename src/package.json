@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "base64-to-image": "^1.0.2",
+    "exceljs": "^4.1.1",
     "express": "^4.17.1",
     "gm": "^1.23.1",
     "image-size": "^0.9.1",

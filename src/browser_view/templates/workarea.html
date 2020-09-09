@@ -157,7 +157,7 @@
 
 	<script>
 		function updateAnnexureName(annexure_name,id){
-			annexure_name = annexure_name.replace(/['"_.=<>{}]/g, '')
+			annexure_name = annexure_name.replace(/['".=<>{};]/g, '')
 			document.getElementById(id).value = annexure_name		
 			file_obj["annexure_name"]=annexure_name
 		

@@ -145,7 +145,12 @@ $(document).ready(function(){
 			for(var i=0; i<allProjects.length; i++)
 			{
 				var node="<tr id=\""+allProjects[i]["filename"]+"\" onmouseover=\"this.style.backgroundColor='#586de8';this.style.color='white'\" onmouseout=\"this.style.backgroundColor= 'white'; this.style.color= 'black'\">\
-					<td></td><td></td><td></td><td></td><td></td><td></td>\
+					<td class="+allProjects[i]["filename"]+" onclick=\"openProject(this.className)\"></td>\
+					<td class="+allProjects[i]["filename"]+" onclick=\"openProject(this.className)\"></td>\
+					<td class="+allProjects[i]["filename"]+" onclick=\"openProject(this.className)\"></td>\
+					<td class="+allProjects[i]["filename"]+" onclick=\"openProject(this.className)\"></td>\
+					<td class="+allProjects[i]["filename"]+" onclick=\"openProject(this.className)\"></td>\
+					<td></td>\
 					</tr>"
 				$("#projectList").append(node)
 				document.getElementById(allProjects[i]["filename"]).children[0].innerText = allProjects[i].filename
@@ -153,10 +158,14 @@ $(document).ready(function(){
 				document.getElementById(allProjects[i]["filename"]).children[2].innerText = allProjects[i].category
 				document.getElementById(allProjects[i]["filename"]).children[3].innerText = allProjects[i].app
 				document.getElementById(allProjects[i]["filename"]).children[4].innerText = allProjects[i].month + ' '+ allProjects[i].year
+				document.getElementById(allProjects[i]["filename"]).children[5].innerHTML ='<a id=x_'+allProjects[i].filename+' onclick="deleteProject(this.id)" href="#"><span class="glyphicon glyphicon-trash"></span></a>'
 				//TO DO: add onclick event Listener on the node 
-				document.getElementById(allProjects[i]["filename"]).addEventListener("click", function(){
-					openProject(this.id)
+				/*document.getElementById(allProjects[i]["filename"]).children[5].addEventListener("click",function(){
+					deleteProject(this.id)
 				})
+				document.getElementsByClassName(allProjects[i]["filename"]).addEventListener("click", function(){
+					openProject(this.id)
+				})*/
 
 			}
         }
@@ -218,9 +227,32 @@ function openProject(projectName){
 	location.replace(window.location.origin + '/work?q='+projectName)
 }
 
+function deleteProject(projectName){
+	id = projectName.substring(2)
+	var isDelete = confirm("Do you want to delete "+ id+"?")
+	if (isDelete==true){
+		$.ajax({
+    	type: 'POST',
+		url: 'http://localhost:3000/deleteProject/'+id,
+		contentType: "text/plain",
+    	success: function(data) {
+			if(data.error)
+			{
+				alert(data.error);
+				window.location.reload()
+			}
+			else{
+				window.location.reload()
+				alert(data.success);
+			}
+		}
+	})
+	}
+}
+
 //character blacklisting
 function blacklist(val, id) {
-	val = val.replace(/['"_.=<>{}]/g, '')
+	val = val.replace(/['".=<>{}; ]/g, '')
 	document.getElementById(id).value = val
 }
 
