@@ -2,10 +2,11 @@ const express = require('express')
 const fs = require('fs')
 const path = require('path')
 var bodyParser = require('body-parser')
-var varExcel = require('./variablesExcel')
 const ExcelJS = require('exceljs');
 const variablesExcel = require('./variablesExcel')
-var sizeOf = require('image-size')
+var sizeOf = require('image-size');
+const { cat } = require('./variablesExcel');
+const { error } = require('console');
 
 // Constants
 const PORT = 3000
@@ -126,8 +127,23 @@ app.post('/save/:projectName',(req, res)=>{
 })
 
 
-app.get('/deleteProject/:id',(req, res)=>{
-    res.send("Delete Endpoint")
+app.post('/deleteProject/:id',(req, res)=>{
+    try{
+        let project_name = req.params.id
+        var file_path = path.join('.','projectConfig', project_name)
+        fs.unlink(file_path, (err) => {
+            if (err) {
+                res.json({error: "Error in Deleting project"})
+                }
+            else{
+                res.json({success: "Deleted Successfully"})
+            }
+        })
+        }
+    catch(e){
+        console.log(e)
+        res.json({error: "Something went wrong!"})
+    }
 })
 
 
@@ -147,6 +163,7 @@ app.post('/importImages', (req, res)=>{
 
 
 app.post('/generateExcel', (req, res)=>{
+    try{
     let file_obj = req.body
     var workbook = new ExcelJS.Workbook();
     function convert(number){
@@ -165,7 +182,7 @@ app.post('/generateExcel', (req, res)=>{
     .then(function(){
         let startrow = 10
         let rowitr=3
-        let colitr=varExcel.dimensions["ini_col"]
+        let colitr=variablesExcel.dimensions["ini_col"]
 
         //setting the author
         workbook.creator = "KPMG"
@@ -174,7 +191,7 @@ app.post('/generateExcel', (req, res)=>{
 		var worksheet_cover = workbook.getWorksheet('Cover');
         let cell1 = worksheet_cover.getCell('C8').value
         cell1 = cell1.replace("var11111",file_obj["client"])
-        cell1 = cell1.replace("var22222",varExcel.cat[file_obj["category"]])
+        cell1 = cell1.replace("var22222",variablesExcel.cat[file_obj["category"]])
         worksheet_cover.getCell('C8').value = cell1
 		cell1 = worksheet_cover.getCell('C12').value
         cell1 = cell1.replace("var33333",file_obj["month"])
@@ -204,7 +221,7 @@ app.post('/generateExcel', (req, res)=>{
         worksheet2.name=annexure_name
 		cell1 = worksheet.getCell('A1').value
 	    cell1 = cell1.replace("var11111",file_obj["app"])
-        cell1 = cell1.replace("var22222",varExcel.cat[file_obj["category"]])
+        cell1 = cell1.replace("var22222",variablesExcel.cat[file_obj["category"]])
         let cell2 = worksheet.getCell('J9').value
         cell2 = cell2.replace("var11111", file_obj["client"])
         worksheet.getCell('A1').value = cell1
@@ -213,7 +230,7 @@ app.post('/generateExcel', (req, res)=>{
         //update Annexures
 		cell1 = worksheet2.getCell('A1').value
 	    cell1 = cell1.replace("var11111",file_obj["app"])
-        cell1 = cell1.replace("var22222",varExcel.cat[file_obj["category"]])
+        cell1 = cell1.replace("var22222",variablesExcel.cat[file_obj["category"]])
         worksheet2.getCell('A1').value = cell1	
 
         for(var i=0; i<file_obj["stock"].length;i++)
@@ -408,10 +425,6 @@ app.post('/generateExcel', (req, res)=>{
                   }
             }
           }
-
-
-
-
         } 
       
         // code to update the table
@@ -419,23 +432,27 @@ app.post('/generateExcel', (req, res)=>{
         worksheet.getCell('C5').value = {formula: 'COUNTIF(E9:E10000, "MEDIUM")'}
         worksheet.getCell('C6').value = {formula: 'COUNTIF(E9:E10000, "LOW")'}
         worksheet.getCell('C7').value = {formula: 'C4+C5+C6'}
-
         worksheet.getCell('D4').value = {formula: 'COUNTIFS(E9:E10000,"HIGH",I9:I10000,"CLOSE")'}
         worksheet.getCell('D5').value = {formula: 'COUNTIFS(E9:E10000,"MEDIUM",I9:I10000,"CLOSE")'}
         worksheet.getCell('D6').value = {formula: 'COUNTIFS(E9:E10000,"LOW",I9:I10000,"CLOSE")'}
         worksheet.getCell('D7').value = {formula: 'D4+D5+D6'}
-
         worksheet.getCell('E4').value = {formula: 'COUNTIFS(E9:E10000,"HIGH",I9:I10000,"OPEN")'}
         worksheet.getCell('E5').value = {formula: 'COUNTIFS(E9:E10000,"MEDIUM",I9:I10000,"OPEN")'}
         worksheet.getCell('E6').value = {formula: 'COUNTIFS(E9:E10000,"LOW",I9:I10000,"OPEN")'}
         worksheet.getCell('E7').value = {formula: 'E4+E5+E6'}
-
-        console.log("Hello")
-
-
         workbook.xlsx.writeFile(path.join('..','reports',file_obj["projectName"]+'.xlsx'))
+        .then(function(){
+            res.json({success: "Report Generated!"})
+        })
+        .catch(function(e){
+            res.json({error: "Please close the report before modifying"})
+        })
     });
-    res.json({success: "Report Saved!"})
+}
+catch(e){
+    res.json({error: "Something went wrong!"})
+}
+   
 })
 
 
