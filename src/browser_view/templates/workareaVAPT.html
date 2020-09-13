@@ -193,6 +193,13 @@
 			}).done(function(data){
 				file_obj = data
 				console.log(file_obj)
+				if(Object.keys(file_obj["obs"]).length >0){
+					api_data = Object.values(file_obj["obs"]);
+					initializeCards();
+					for(var i in file_obj["stock"]){createObsDOM(file_obj["stock"][i]);}
+					updateBanner();
+					updateSettings()
+				}
 			})				
 		})
 
@@ -306,6 +313,22 @@
 			cardClick(file_obj["stock"][0]);
 		}
 	}
+	function updateSettings(){
+		for(var i=0;i<api_data.length;i++)
+		{
+			document.getElementById("a"+file_obj["img_limit"]).checked = true;
+			document.getElementById("annexure_name").value=file_obj["annexure_name"]
+			updateDOM()
+			$("#sortable").sortable({
+    			update: function(event, ui){
+      				$(this).children().each(function(index){
+						file_obj["stock"][index]= $(this).attr('id')
+      				})
+					recreateObsDOM()
+				}
+  			});
+		}
+	}
 
 	function checkElliotPath(){
 		var path = document.getElementById("elliotPath").value
@@ -377,20 +400,7 @@
 						console.log(file_obj)			
 					}
 				}).done(function(){
-					for(var i=0;i<api_data.length;i++)
-					{
-						document.getElementById("a"+file_obj["img_limit"]).checked = true;
-						document.getElementById("annexure_name").value=file_obj["annexure_name"]
-  						updateDOM()
-  						$("#sortable").sortable({
-    						update: function(event, ui){
-      							$(this).children().each(function(index){
-									file_obj["stock"][index]= $(this).attr('id')
-      							})
-								recreateObsDOM()
-    						}
-  						});
-					}
+					updateSettings()
 				})
 			}
 		})
