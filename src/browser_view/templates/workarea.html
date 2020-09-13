@@ -45,8 +45,8 @@
 				
 			</div>
 			<div class="col-sm-3">
-				<button class="btn btn-secondary" id="writeit" onclick="saveProject()">Save</button>
-				<button id="mybtn" class="btn btn-secondary" name="generate" onclick="createSheet()" value="Generate report"/>Generate Report</button>
+				<button class="btn btn-sm btn-default" style="margin-top: 5px;" id="writeit" onclick="saveProject()">Save</button>
+				<button id="mybtn" class="btn btn-sm btn-success" style="margin-top: 5px;" name="generate" onclick="createSheet()" value="Generate report"/>Generate Report</button>
   			</div>
 		</div>
 
@@ -70,7 +70,7 @@
 						</ul>  
 						</div>
 				
-						<div class="col-sm-2">
+						<div class="col-sm-2" style="margin-top: 10px;">
 							<span class="label label-danger" id="highBanner">0</span>
 							<span class="label label-warning" id="medBanner">0</span>
 							<span class="label label-success" id="lowBanner">0</span>
@@ -102,9 +102,9 @@
 					<div id="settings" class="container-fluid text-left tab-pane fade">
 						<h3>Settings</h3>
 						<div class="container-fluid" style="border: 1px solid black;padding:10px;border-radius:5px;">
-							<h4>Annexure Settings:</h4>
+							<h4><b>Annexure Settings:</b></h4>
 							<div class="container-fluid text-center">
-							<p>Number of Images per row per Observation case: </p>
+							<label>Number of Images per row per Observation case: </label>
 							<form name="ImageSelect">
 							<span style="border:1px solid #94baf7;padding: 5px;background-color:#d3e4ff"><input type="radio" name="limit" id="a1" value="1"> 1</span>
 							<span style="border:1px solid #94baf7;padding: 5px;background-color:#d3e4ff"><input type="radio" name="limit" id="a2" value="2"> 2</span>
@@ -117,19 +117,21 @@
 							<span style="border:1px solid #94baf7;padding: 5px;background-color:#d3e4ff"><input type="radio" name="limit" id="a9" value="9"> 9</span>
 							<span style="border:1px solid #94baf7;padding: 5px;background-color:#d3e4ff"><input type="radio" name="limit" id="a10" value="10"> 10</span>
 							<span style="border:1px solid #94baf7;padding: 5px;background-color:#d3e4ff"><input type="radio" name="limit" id="ainfinite" value="infinite"> infinite</span>
-							</form>	
+							</form>
+							</div>
+							<br>	
+							<div class="text-center">
+								<label>Annexure Name : </label>
+								<input type="text" id="annexure_name" onkeyup=updateAnnexureName(this.value,this.id)>
 							</div>
 						  </div>
 						  <br>
 						  <div class="container-fluid" style="border: 1px solid #555;border-radius:5px;">
-							<h4>Order Settings: <button class="btn btn-xs btn-default" onclick="basicSort()">Basic Sort</button> </h4>
+							<h4><b>Order Settings:</b> &nbsp;&nbsp;&nbsp;&nbsp;<button class="btn btn-xs btn-default" onclick="basicSort()">Basic Sort</button> </h4>
 						  <ul id="sortable">
 						  </ul>
 						  </div>
 						  <br>
-						  <div>
-							 Annexure Name : <input type="text" id="annexure_name" onkeyup=updateAnnexureName(this.value,this.id)>
-						  </div>
 					</div>
 					<div id="writeups" class="container-fluid text-left tab-pane fade">
 						<table class="table table-condensed table-striped table-bordered" id="database" style="width:100%; background-color: #eee;">

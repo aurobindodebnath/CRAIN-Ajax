@@ -14,7 +14,8 @@ const app = express()
 
 // Static files and Middlewares
 app.use(express.static(path.join(__dirname,'browser_view','templates')))
-app.use('/work', express.static(path.join(__dirname,'browser_view','templates','workarea.html')))
+app.use('/generic', express.static(path.join(__dirname,'browser_view','templates','workarea.html')))
+app.use('/va', express.static(path.join(__dirname,'browser_view','templates','workareaVAPT.html')))
 app.use(express.static(path.join(__dirname,'browser_view')))
 app.use(bodyParser.json({limit: '50mb'}))
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true, parameterLimit:50000}))
@@ -456,7 +457,54 @@ catch(e){
 })
 
 
+
+
+// Elliot additions
+
+app.post('/va/elliotobs', (req, res)=>{
+    console.log(req.body)
+    try{
+        if(!fs.existsSync(req.body["path"])){
+            res.json({error: "The project path does not exist!"})
+        }
+    }
+    catch{
+        res.json({error: "Something Went Wrong!"})
+    }
+    var elliot_xl = new ExcelJS.Workbook();
+    elliot_xl.xlsx.readFile(path.join(req.body["path"],'output.xlsx'))
+    .then(function(){
+        var elliot_ws = elliot_xl.worksheets[0]
+        let elliotObs = []
+        elliot_ws.eachRow(function(row, rowNumber) {            
+            let temp = {}
+            if(rowNumber != '1' )
+            {
+                temp["id"] = row.values[1]
+                temp["affected"] = row.values[4]
+                temp["observation"] = row.values[2]
+                temp["detOb"] = row.values[3]
+                temp["criticality"] = row.values[5]
+                temp["recommendation"] = row.values[6]
+                temp["risk"] = ""
+                temp["abbr"] = ""
+                elliotObs.push(temp)
+            }
+        });
+        res.json({elliotObs: elliotObs})
+    })
+})
+
+
+
+
+
+
+
+
 // Start Server
 app.listen(PORT, ()=>{
     console.log("CRAIN local server running at port ", PORT)
 })
+
+

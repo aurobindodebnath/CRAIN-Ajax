@@ -1,5 +1,5 @@
-const mydomain = '192.168.1.8:8080';
-//const mydomain = '127.0.0.1:8080';
+//const mydomain = '192.168.1.8:8080';
+const mydomain = '127.0.0.1:8000';
 
 const protocol = 'http';
 

@@ -46,9 +46,8 @@
 				
 			</div>
 			<div class="col-sm-3">
-                <button class="btn btn-secondary" id="writeit" onclick="openNav()">Show Images</button>
-				<button class="btn btn-secondary" id="writeit" onclick="saveProject()">Save</button>
-				<button id="mybtn" class="btn btn-secondary" name="generate" onclick="createSheet()" value="Generate report"/>Generate Report</button>
+				<button class="btn btn-sm btn-default" style="margin-top: 5px;" id="writeit" onclick="saveProject()">Save</button>
+				<button id="mybtn" class="btn btn-sm btn-success" style="margin-top: 5px;" name="generate" onclick="createSheet()" value="Generate report"/>Generate Report</button>
   			</div>
 		</div>
 
@@ -64,15 +63,20 @@
     		<div class="col-sm-10" style="height: 100%; overflow-y: scroll;">
         		<div class="container-fluid text-center">
 					<div class="row">
-						<div class="col-sm-10">
+						<div class="col-sm-4">
 						<ul class="nav nav-tabs">
 							<li class="active"><a data-toggle="tab" href="#workarea" onclick="setTimeout(recreateObsDOM, 500)">Work Area</a></li>
 							<li><a data-toggle="tab" href="#settings">Settings</a></li>
-							<li><a data-toggle="tab" href="#writeups">Write Ups</a></li>
-						</ul>  
+						</ul> 
+						</div>
+						<div class="col-sm-5" style="padding-top: 10px;">							
+								<label> Elliot Output Path: </label>
+								<input id="elliotPath" type="text">
+								<button class="btn btn-sm btn-primary" onclick="checkElliotPath()">Start!</button>
+							</form>
 						</div>
 				
-						<div class="col-sm-2">
+						<div class="col-sm-2" style="margin-top: 10px;">
 							<span class="label label-danger" id="highBanner">0</span>
 							<span class="label label-warning" id="medBanner">0</span>
 							<span class="label label-success" id="lowBanner">0</span>
@@ -82,6 +86,19 @@
 								<div class="col-sm-4 text-center" data-toggle="tooltip" title="Total Medium Observations" style="background-color: #e89b57;color: #715d5d;"><h5><span id="medBanner">0<span></h5></div>
 								<div class="col-sm-4 text-center" data-toggle="tooltip" title="Total Low Observations" style="background-color: #70b960;color: #715d5d;"><h5><span id="lowBanner">0</span></h5></div>
 							</div>-->
+						</div>
+						<div class="col-sm-1" data-toggle="tooltip" title="Show Images">
+							<img src="../img/arrow.png" onclick="openNav()" style="height: 20px; width: 20px; border-radius: 10px; margin-top: 15px;">
+							<style> 
+								img {
+									transition: all .2s ease-in-out;
+								}
+								
+								img:hover {
+									transform: scale(1.3);
+									cursor: pointer;
+								}
+								</style>
 						</div>
 					</div><br>
                 </div>
@@ -111,9 +128,9 @@
 					<div id="settings" class="container-fluid text-left tab-pane fade">
 						<h3>Settings</h3>
 						<div class="container-fluid" style="border: 1px solid black;padding:10px;border-radius:5px;">
-							<h4>Annexure Settings:</h4>
+							<h4><b>Annexure Settings:</b></h4>
 							<div class="container-fluid text-center">
-							<p>Number of Images per row per Observation case: </p>
+							<label>Number of Images per row per Observation case: </label>
 							<form name="ImageSelect">
 							<span style="border:1px solid #94baf7;padding: 5px;background-color:#d3e4ff"><input type="radio" name="limit" id="a1" value="1"> 1</span>
 							<span style="border:1px solid #94baf7;padding: 5px;background-color:#d3e4ff"><input type="radio" name="limit" id="a2" value="2"> 2</span>
@@ -128,27 +145,19 @@
 							<span style="border:1px solid #94baf7;padding: 5px;background-color:#d3e4ff"><input type="radio" name="limit" id="ainfinite" value="infinite"> infinite</span>
 							</form>	
 							</div>
+							<br>
+							<div class="text-center">
+								<label>Annexure Name :</label> <input type="text" id="annexure_name" onkeyup=updateAnnexureName(this.value,this.id)>
+							 </div>
 						  </div>
 						  <br>
 						  <div class="container-fluid" style="border: 1px solid #555;border-radius:5px;">
-							<h4>Order Settings: <button class="btn btn-xs btn-default" onclick="basicSort()">Basic Sort</button> </h4>
+							<h4><b>Order Settings:</b> &nbsp;&nbsp;&nbsp;&nbsp;<button class="btn btn-xs btn-default" onclick="basicSort()">Basic Sort</button> </h4>
 						  <ul id="sortable">
 						  </ul>
 						  </div>
 						  <br>
-						  <div>
-							 Annexure Name : <input type="text" id="annexure_name" onkeyup=updateAnnexureName(this.value,this.id)>
-						  </div>
-					</div>
-					<div id="writeups" class="container-fluid text-left tab-pane fade">
-						<table class="table table-condensed table-striped table-bordered" id="database" style="width:100%; background-color: #eee;">
-							<tr style="color:white; background-color:rosybrown">
-								<th><center>Observation</center></th>
-								<th><center>Detailed Observation</center></th>
-								<th><center>Risk/ Impact</center></th>
-								<th><center>Recommendation</center></th>
-							</tr>
-						</table>
+
 					</div>
 				</div>
     		</div>
@@ -184,56 +193,8 @@
 			}).done(function(data){
 				file_obj = data
 				console.log(file_obj)
-				$.ajax({
-        			type: 'GET',
-			        headers: {
-    					'Authorization': 'Token 79d6b28e5fa83273057ef363f64a849de4d9c571'
-					},
-        			url: protocol+'://'+mydomain+'/'+file_obj["category"]+'/?format=json',
-					dataType: "json"
-				}).done(function(obs_data){
-					api_data = obs_data
-					console.log(api_data)
-					initializeCards()
-					for(var i in file_obj["stock"]){createObsDOM(file_obj["stock"][i]);}
-					updateBanner();
-					console.log(file_obj)
-				}).done(function(){
-					// Sort Functionality
-				}).done(function(){
-					for(var i=0;i<api_data.length;i++)
-					{
-						let criticality = '<br><span class="label label-default">Unknown</span>'
-						if(api_data[i].criticality == "High"){
-							criticality = '<br><span class="label label-danger">High</span>'
-						}
-						else if(api_data[i].criticality == "Medium")
-						{
-							criticality = '<br><span class="label label-warning">Medium</span>'
-						}
-						else if(api_data[i].criticality == "Low"){
-							criticality = '<br><span class="label label-success">Low</span>'
-						}
-						var node = '<tr style="font-size:11px;"><td><b>'+api_data[i].observation+criticality+'</b></td><td>'+api_data[i].detOb+'</td><td>'+api_data[i].risk+'</td><td>'+api_data[i].recommendation+'</td></tr>'
-						$('#database').append(node)
-
-						document.getElementById("a"+file_obj["img_limit"]).checked = true;
-						document.getElementById("annexure_name").value=file_obj["annexure_name"]
-  						updateDOM()
-  						$("#sortable").sortable({
-    						update: function(event, ui){
-      							$(this).children().each(function(index){
-									file_obj["stock"][index]= $(this).attr('id')
-      							})
-								recreateObsDOM()
-    						}
-  						});
-					}
-				})
-			})
-
-  			
-	})
+			})				
+		})
 
 	function saveProject(){
 		let projectName = file_obj["projectName"]
@@ -328,6 +289,111 @@
 			else
 			   	file_obj["img_limit"] = Number(this.value)
     	}
+	}
+
+	function restructureDataVAPT(data){
+		restructured_data = []
+		for(var x in data){
+			data[x]["vapt_observation"]["id"] = Number(data[x]["pluginID"])
+			restructured_data.push(data[x]["vapt_observation"])
+		}
+		return restructured_data
+	}
+
+	function cleanUp(){
+		api_data = null
+		while(file_obj["stock"].length != 0){
+			cardClick(file_obj["stock"][0]);
+		}
+	}
+
+	function checkElliotPath(){
+		var path = document.getElementById("elliotPath").value
+		cleanUp()
+		// read from elliot output excel for the plugins observed
+		$.ajax({
+			type: 'POST',
+			url: 'http://localhost:3000/va/elliotobs',
+			contentType: "application/json; charset=utf-8",
+			data: JSON.stringify({ path: path}),
+			success: function(elliotObs){
+				console.log(elliotObs)
+				let plugins = []
+				for(var x in elliotObs["elliotObs"]){
+					plugins.push(String(elliotObs["elliotObs"][x]["id"]))
+				}
+				// query the API microservice for standard writeups for the observed plugins
+				$.ajax({
+					type: 'POST',
+			        headers: {
+    					'Authorization': 'Token 79d6b28e5fa83273057ef363f64a849de4d9c571'
+					},
+        			url: protocol+'://'+mydomain+'/va/?format=json',
+					contentType: "application/json; charset=utf-8",
+					data: JSON.stringify({plugins: plugins}),
+					success: function(data){
+						api_data = restructureDataVAPT(data)
+						// check what plugins are absent in the API microservice
+						var absent_plugins = []
+						let present = false
+						for(var i in plugins){
+							present = false;
+							for(var j in api_data){
+								if(api_data[j]["id"] == Number(plugins[i]))
+								{
+									present = true; break;
+								}
+							}
+							if(!present){
+								absent_plugins.push(plugins[i])
+							}
+						}
+						// copy affected hosts from elliotObs -> api_data
+						for(var i in api_data){
+							for(var j in elliotObs["elliotObs"]){
+								if(elliotObs["elliotObs"][j]["id"] == api_data[i]["id"]){
+									api_data[i]["affected"] = elliotObs["elliotObs"][j]["affected"]
+								}
+							}
+						}
+
+						// copy default nessus writeups for absent plugins -> api_data
+						if(absent_plugins.length != 0){
+							for(var i in absent_plugins){
+								for(var j in elliotObs["elliotObs"]){
+									if(elliotObs["elliotObs"][j]["id"] == Number(absent_plugins[i])){
+										if(elliotObs["elliotObs"][j]["criticality"] == "Critical"){
+											elliotObs["elliotObs"][j]["criticality"] = "High"
+										}
+										api_data.push(elliotObs["elliotObs"][j])
+									}
+								}
+							}
+						}
+						console.log("Final api_data", api_data)
+						initializeCards()
+						for(var i in plugins){cardClick(plugins[i])}
+						// condition to check if loaded from file;		updateBanner();
+						console.log(file_obj)			
+					}
+				}).done(function(){
+					for(var i=0;i<api_data.length;i++)
+					{
+						document.getElementById("a"+file_obj["img_limit"]).checked = true;
+						document.getElementById("annexure_name").value=file_obj["annexure_name"]
+  						updateDOM()
+  						$("#sortable").sortable({
+    						update: function(event, ui){
+      							$(this).children().each(function(index){
+									file_obj["stock"][index]= $(this).attr('id')
+      							})
+								recreateObsDOM()
+    						}
+  						});
+					}
+				})
+			}
+		})
 	}
 	</script>
 </body>

@@ -67,11 +67,8 @@
 							<label class="control-label col-sm-4">Category: </label>
 							<div class="col-sm-8">
 								<select id="category" name="category" style="width:180px">
-									<option value="appsec">Web Application Security Assessment</option>
-									<option value="mobsec">Mobile Application Security Assessment</option>
-									<option value="sourcecode">Secure Source Code Review</option>
-		<!-- 						<option value="network">Network Architecture Review</option>
-									<option value="va">Vulnerability Assessment</option>-->
+									<option value="appsec">Application Security Assessment</option>
+									<option value="va">Vulnerability Assessment</option>
 								</select>
 							</div>
 						</div>
@@ -145,11 +142,11 @@ $(document).ready(function(){
 			for(var i=0; i<allProjects.length; i++)
 			{
 				var node="<tr id=\""+allProjects[i]["filename"]+"\" onmouseover=\"this.style.backgroundColor='#586de8';this.style.color='white'\" onmouseout=\"this.style.backgroundColor= 'white'; this.style.color= 'black'\">\
-					<td class="+allProjects[i]["filename"]+" onclick=\"openProject(this.className)\"></td>\
-					<td class="+allProjects[i]["filename"]+" onclick=\"openProject(this.className)\"></td>\
-					<td class="+allProjects[i]["filename"]+" onclick=\"openProject(this.className)\"></td>\
-					<td class="+allProjects[i]["filename"]+" onclick=\"openProject(this.className)\"></td>\
-					<td class="+allProjects[i]["filename"]+" onclick=\"openProject(this.className)\"></td>\
+					<td class="+allProjects[i]["filename"]+" onclick=\"openProject(this.className, allProjects["+i+"].category)\"></td>\
+					<td class="+allProjects[i]["filename"]+" onclick=\"openProject(this.className, allProjects["+i+"].category)\"></td>\
+					<td class="+allProjects[i]["filename"]+" onclick=\"openProject(this.className, allProjects["+i+"].category)\"></td>\
+					<td class="+allProjects[i]["filename"]+" onclick=\"openProject(this.className, allProjects["+i+"].category)\"></td>\
+					<td class="+allProjects[i]["filename"]+" onclick=\"openProject(this.className, allProjects["+i+"].category)\"></td>\
 					<td></td>\
 					</tr>"
 				$("#projectList").append(node)
@@ -195,6 +192,7 @@ function createProject(){
 	let year = document.getElementById("year").value
 	let projectName = document.getElementById("projectName").value
 
+
 	if(client == "" || app == "" || category == "" || month == "" || year == "" || projectName == ""){
 		document.getElementById("error").innerHTML = "All Fields are required";
 		return
@@ -218,13 +216,18 @@ function createProject(){
 				document.getElementById("error").innerHTML = data.error;
 			}
 			else{
-				openProject(data.data.projectName)
+				openProject(data.data.projectName, data.data.category)
 			}
 		}
 	})
 }
-function openProject(projectName){
-	location.replace(window.location.origin + '/work?q='+projectName)
+function openProject(projectName, category){
+	if(category=="va"){
+		location.replace(window.location.origin + '/va?q='+projectName)
+	}
+	else{
+		location.replace(window.location.origin + '/generic?q='+projectName)
+	}
 }
 
 function deleteProject(projectName){
