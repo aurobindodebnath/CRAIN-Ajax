@@ -497,8 +497,47 @@ app.post('/va/elliotobs', (req, res)=>{
 
 
 
+app.post('/va/elliotEvidences', (req, res)=>{
+    console.log(req.body)
+    try{
+        if(!fs.existsSync(req.body["path"])){
+            res.json({error: "The project path does not exist!"})
+        }
+    }
+    catch{
+        res.json({error: "Something Went Wrong!"})
+    }
+/*    var evidences = {"pluginID": [{"ip_port": "content"}
+                                    {"ip_port": "content"}], 
+                    ...} 
+    req.body.plugins
+*/
+    var plugins = req.body.plugins
+    var evidences = {}
+    console.log(plugins)
+    fs.readdir(req.body.path, (err, files) => {
+        if(err){
+            res.json({error: "Something went wrong!"})
+        }
+        for(let file in files){
+            if(!fs.lstatSync(path.join(req.body.path, files[file])).isDirectory()){
+                continue;
+            }
+            index = plugins.indexOf(String(files[file].split(' ')[0]))
+            console.log(index)
+            if(index != -1 && !(files[file].split(' ')[0] in evidences)){
+                evidences[files[file].split(' ')[0]]= []
+                console.log("ev", evidences)
 
 
+                // TO BE CONTINUED
+
+            }
+            plugins.splice(index, 1)
+        }
+        res.json({hi:evidences})
+    })
+})
 
 
 
