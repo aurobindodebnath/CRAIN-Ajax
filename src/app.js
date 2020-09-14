@@ -14,7 +14,8 @@ const app = express()
 
 // Static files and Middlewares
 app.use(express.static(path.join(__dirname,'browser_view','templates')))
-app.use('/work', express.static(path.join(__dirname,'browser_view','templates','workarea.html')))
+app.use('/generic', express.static(path.join(__dirname,'browser_view','templates','workarea.html')))
+app.use('/va', express.static(path.join(__dirname,'browser_view','templates','workareaVAPT.html')))
 app.use(express.static(path.join(__dirname,'browser_view')))
 app.use(bodyParser.json({limit: '50mb'}))
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true, parameterLimit:50000}))
@@ -456,7 +457,89 @@ catch(e){
 })
 
 
+
+
+// Elliot additions
+
+app.post('/va/elliotobs', (req, res)=>{
+    console.log(req.body)
+    try{
+        if(!fs.existsSync(req.body["path"])){
+            res.json({error: "The project path does not exist!"})
+        }
+    }
+    catch{
+        res.json({error: "Something Went Wrong!"})
+    }
+    var elliot_xl = new ExcelJS.Workbook();
+    elliot_xl.xlsx.readFile(path.join(req.body["path"],'output.xlsx'))
+    .then(function(){
+        var elliot_ws = elliot_xl.worksheets[0]
+        let elliotObs = []
+        elliot_ws.eachRow(function(row, rowNumber) {            
+            let temp = {}
+            if(rowNumber != '1' )
+            {
+                temp["id"] = row.values[1]
+                temp["affected"] = row.values[4]
+                temp["observation"] = row.values[2]
+                temp["detOb"] = row.values[3]
+                temp["criticality"] = row.values[5]
+                temp["recommendation"] = row.values[6]
+                temp["risk"] = ""
+                temp["abbr"] = ""
+                elliotObs.push(temp)
+            }
+        });
+        res.json({elliotObs: elliotObs})
+    })
+})
+
+
+
+app.post('/va/elliotEvidences', (req, res)=>{
+    console.log(req.body)
+    try{
+        if(!fs.existsSync(req.body["path"])){
+            res.json({error: "The project path does not exist!"})
+        }
+    }
+    catch{
+        res.json({error: "Something Went Wrong!"})
+    }
+    var plugins = req.body.plugins
+    var evidences = {}
+    fs.readdir(req.body.path, (err, dirs) => {
+        if(err){
+            res.json({error: "Something went wrong!"})
+        }
+        for(let dir in dirs){
+            if(!fs.lstatSync(path.join(req.body.path, dirs[dir])).isDirectory()){
+                continue;
+            }
+            let plugin = String(dirs[dir].split(' ')[0])
+            let index = plugins.indexOf(String(dirs[dir].split(' ')[0]))
+            let mydict = {}
+            if(index != -1 && !(plugin in evidences)){
+                evidences[plugin]= {}
+                files = fs.readdirSync(path.join(req.body.path, dirs[dir]))
+                for(let file in files){
+                    let mydict_index = files[file].substring(0, files[file].lastIndexOf("."));
+                    mydict[mydict_index] = fs.readFileSync(path.join(req.body.path, dirs[dir], files[file])).toString()
+                }
+            }
+            evidences[plugin] = mydict
+            plugins.splice(index, 1)
+        }
+        res.json(evidences)
+    })
+})
+
+
+
 // Start Server
 app.listen(PORT, ()=>{
     console.log("CRAIN local server running at port ", PORT)
 })
+
+

@@ -14,7 +14,9 @@ function addToStock(id){
     {
       file_obj["obs"][id] = api_data[i]
       file_obj["obs"][id]["annexure"] = false
-      file_obj["obs"][id]["affected"] = ""
+      if(!("affected" in file_obj["obs"][id])){
+        file_obj["obs"][id]["affected"] = ""
+      }
       file_obj["obs"][id]["images"] = {}
     }
   }

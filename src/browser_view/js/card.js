@@ -53,6 +53,12 @@ function cardClick(val){
 function createCards(mylist){
   let pane = document.getElementById('sidepane')
   pane.innerHTML = ""
+  mylist_temp = mylist
+  mylist = []
+  for(let x in mylist_temp){
+    mylist.push(Number(mylist_temp[x]))
+  }
+
   for(var i in api_data){
     if(mylist.indexOf(api_data[i]["id"])!=-1)
     {
