@@ -507,35 +507,31 @@ app.post('/va/elliotEvidences', (req, res)=>{
     catch{
         res.json({error: "Something Went Wrong!"})
     }
-/*    var evidences = {"pluginID": [{"ip_port": "content"}
-                                    {"ip_port": "content"}], 
-                    ...} 
-    req.body.plugins
-*/
     var plugins = req.body.plugins
     var evidences = {}
-    console.log(plugins)
-    fs.readdir(req.body.path, (err, files) => {
+    fs.readdir(req.body.path, (err, dirs) => {
         if(err){
             res.json({error: "Something went wrong!"})
         }
-        for(let file in files){
-            if(!fs.lstatSync(path.join(req.body.path, files[file])).isDirectory()){
+        for(let dir in dirs){
+            if(!fs.lstatSync(path.join(req.body.path, dirs[dir])).isDirectory()){
                 continue;
             }
-            index = plugins.indexOf(String(files[file].split(' ')[0]))
-            console.log(index)
-            if(index != -1 && !(files[file].split(' ')[0] in evidences)){
-                evidences[files[file].split(' ')[0]]= []
-                console.log("ev", evidences)
-
-
-                // TO BE CONTINUED
-
+            let plugin = String(dirs[dir].split(' ')[0])
+            let index = plugins.indexOf(String(dirs[dir].split(' ')[0]))
+            let mydict = {}
+            if(index != -1 && !(plugin in evidences)){
+                evidences[plugin]= {}
+                files = fs.readdirSync(path.join(req.body.path, dirs[dir]))
+                for(let file in files){
+                    let mydict_index = files[file].substring(0, files[file].lastIndexOf("."));
+                    mydict[mydict_index] = fs.readFileSync(path.join(req.body.path, dirs[dir], files[file])).toString()
+                }
             }
+            evidences[plugin] = mydict
             plugins.splice(index, 1)
         }
-        res.json({hi:evidences})
+        res.json(evidences)
     })
 })
 
