@@ -1,25 +1,51 @@
-# CRAIN AJAX
+# CRAIN Application
 
-## About
+## Introduction
 
-Browser based application for report generation
+CRAIN stands for _Cyber Report Automation INtegration_. It is a application for Windows that runs on the browser and helps the user to generate excel reports for various Cyber Security related activities such as Application Security Assessment, Vulnerability Assessment et al. in a standard format. It pulls the observation writeups from the CRAIN-db-microservice. A user may create report by selecting the observations and importing the images. The report generated contains
 
-## Dependency
+## Architecture and Technological Stack
 
-Run [CRAIN-API](https://github.com/aurobindodebnath/CRAIN-API) at http://localhost:8080/
+```
+ __________________________ CRAIN _____________________                            _________ THIRD PARTY TOOLS _________
+|                                                      |                          |                                     |
+
+ ________________                       _______________
+|                |                     |               |
+|    CRAIN DB    |  -----------------> |     CRAIN     |    
+|  MICROSERVICE  |                     |  APPLICATION  |  <----------------------- [+] ELLIOT
+|________________|                     |_______________|        (Optional)             Command line python based tool
+                                                                                       to gather Vulnerability Assessment
+ [+] Remote Server                     [+] Local Machine                               evidences via automated procedures.
+    [] Python                             [] HTML, CSS, JS
+    [] Django REST                        [] NodeJS
+       Framework
+       
+```
 
 ## Installation
-
-> Run src/Install.bat
-
+```
+[] Clone this repository
+[] Double Click on src/Install.bat
+```
 ## Usage
 
-> Run run_Crain.bat
+__Development__
+```
+[] Clone the CRAIN-db-microservice reporsitory
+[] Follow instructions in the README of that repository
+[] Set the value of domain in variables.js to localhost:port
+    (port = port at which CRAIN-db-microservice is running locally)
+```
+__Production__
+```
+[] Connect to the CyberLab VPN
+[] Double Click on run_Crain.bat
+```
 
-## Development TO-DOs:
+## User Guide
+_Coming Soon_
 
-- Implement Image Import functionality (Current functionality broken due to browser security)
-- Add Excel generation API code in app.js
-- Add Delete Project API code in app.js
-- Add Functionality to change background color of text fields for deviations from standard writeups
-- Add Feature of Editable Annexure names
+## Contributors
+- Aurobindo Debnath
+- Akriti Aggarwal
