@@ -2,3 +2,4 @@ src/node_modules/
 node_modules/
 reports/
 src/projectConfig
+src/browser_view/templates/base.xlsx
