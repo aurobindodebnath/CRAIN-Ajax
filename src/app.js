@@ -478,7 +478,7 @@ app.post('/va/elliotobs', (req, res)=>{
         let elliotObs = []
         elliot_ws.eachRow(function(row, rowNumber) {            
             let temp = {}
-            if(rowNumber != '1' )
+            if(Number(rowNumber) > 3 )
             {
                 temp["id"] = row.values[1]
                 temp["affected"] = row.values[4]
@@ -528,8 +528,10 @@ app.post('/va/elliotEvidences', (req, res)=>{
                     mydict[mydict_index] = fs.readFileSync(path.join(req.body.path, dirs[dir], files[file])).toString()
                 }
             }
-            evidences[plugin] = mydict
-            plugins.splice(index, 1)
+            if(Object.keys(mydict).length != 0){
+                evidences[plugin] = mydict
+                plugins.splice(index, 1)
+            }
         }
         res.json(evidences)
     })

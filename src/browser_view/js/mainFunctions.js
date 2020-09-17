@@ -29,7 +29,6 @@ function updateBanner(){
 
 /*DOM: function to create/delete Observations*/
 function createObsDOM(id){
-  console.log(id)
     //high,medium,low...... For selecting the select box
     let critic_array = ["","",""]
     if(file_obj["obs"][id]["criticality"]=="High"){
@@ -113,27 +112,6 @@ function updateCritic(id){
   });
 }
 
-
-/* ----------------------- SAVING TO FILE ------------------------------------*/
-/*
-//On clicking the Save button
-savebutton = document.getElementById("writeit")
-savebutton.addEventListener('click',() =>{
-  console.log("File obj", file_obj)
-  let json_string = JSON.stringify(file_obj)
-  if(!fs.existsSync(path.join('.','resources','app','projects',filename))) {
-     alert("FILE DOESN\'T EXIST.")
-  }
-  else{
-    fs.writeFile(path.join('.','resources','app','projects',filename), json_string, function (err) {
-      if (err) throw err;
-      alert('SAVED!');
-  });
-  }
-});
-*/
-
-
 /*-------------------------SEARCH FUNCTIONALITY----------------------------------------*/
 $('#cardSearch').keyup(function(){
       var mylist = []
@@ -155,29 +133,3 @@ $('#cardSearch').keyup(function(){
       createCards(mylist)
       checkCards(mylist)
 		});
-
-
-/*---------------------- IPC Modules -------------------------------*/
-/*
-function sortSettings(){
- console.log(ipcRenderer.sendSync('create-window',file_obj))
-}
-
-ipcRenderer.on('update-stock',(event, arg)=>{
-  console.log("In checklist", arg)
-  file_obj = arg
-  console.log("THIS IS UPDATED", file_obj)
-  document.getElementById('ObsDOM').innerHTML="<tr style=\"color:white; background-color: #6a7f9a\">\
-          		    <th><center>Observation</center></th>\
-          		    <th><center>Detailed Observation</center></th>\
-          		    <th><center>Affected Hosts</center></th>\
-          		    <th><center>Risk/ Impact</center></th>\
-          		    <th><center>Recommendation</center></th>\
-          		    <th><center>Images</center></th>\
-          		</tr>"
-  for(var i in file_obj["stock"])
-  {
-    createObsDOM(file_obj["stock"][i])
-  }
-});
-*/

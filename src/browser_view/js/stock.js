@@ -22,7 +22,6 @@ function addToStock(id){
   }
   createObsDOM(id)
   updateBanner();
-  console.log(file_obj)
 }
 //function to remove id from stock
 function deleteFromStock(id){
