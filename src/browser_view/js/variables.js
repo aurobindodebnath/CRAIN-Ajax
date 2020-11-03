@@ -1,7 +1,9 @@
-//const mydomain = '192.168.1.8:8080';
-const mydomain = '127.0.0.1:8000';
+const mydomain = '192.168.1.8:8000';
+//const mydomain = '127.0.0.1:8000';
 
 const protocol = 'http';
+
+const TOKEN = ""
 
 var cat = {
 	"appsec":"Web Application Security Assessment",

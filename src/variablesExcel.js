@@ -3,11 +3,8 @@ module.exports = {
     cat : {
         "appsec":"Web Application Security Assessment",
         "mobsec":"Mobile Application Security Assessment",
-    },
-
-    cat2 : {
-        "appsec":"Web",
-        "mobsec":"Mobile",
+        "scr":"Source Code Review",
+        "va":"Vulnerability and Penetration Testing"
     },
 
     switch_keyword : "EDIT",

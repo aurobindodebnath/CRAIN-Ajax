@@ -68,7 +68,9 @@
 							<div class="col-sm-8">
 								<select id="category" name="category" style="width:180px">
 									<option value="appsec">Application Security Assessment</option>
+									<option value="scr">Source Code Review</option>
 									<option value="va">Vulnerability Assessment</option>
+									<option value="va-elliot">Vulnerability Assessment (Elliot)</option>
 								</select>
 							</div>
 						</div>
@@ -222,7 +224,7 @@ function createProject(){
 	})
 }
 function openProject(projectName, category){
-	if(category=="va"){
+	if(category=="va-elliot"){
 		location.replace(window.location.origin + '/va?q='+projectName)
 	}
 	else{
